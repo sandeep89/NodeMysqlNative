@@ -2,28 +2,31 @@ var restify = require("restify");
 var middleWares = require("./lib/middlewares")
 
 var server = restify.createServer();
+server.use(restify.bodyParser({ mapParams: false }));
 var employeeService = middleWares.services ? middleWares.services.employee : {};
 
-/*employeeService.addEmployee("Sandeep", "Pandey", "trainer", "sanpan", function(err, row){
-    if(err){
-        console.log("error while inserting record", err)
-    }else{
-        console.log(row);
-    }
-})*/
-
-server.get("/employees", function(req, res, next){
-    employeeService.fetch(function(err, rows){
-        if(err){
+server.get("/employees", function (req, res, next) {
+    employeeService.fetch(function (err, rows) {
+        if (err) {
             res.send(err);
             next()
-        }else{
+        } else {
             res.send(rows);
             next();
         }
     });
 })
 
-server.listen(8080, function() {
+server.post("/employees", function (req, res, next) {
+    var employee = req.body;
+    employeeService.addEmployee(employee.fname, employee.lname, employee.designation, employee.userName, function (err, row) {
+        if (err) {
+            console.log("error while inserting record", err)
+        } else {
+            res.send(row);
+        }
+    })
+})
+server.listen(8080, function () {
     console.log('%s listening at %s', server.name, server.url);
 });
